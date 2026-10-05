@@ -9,7 +9,6 @@ This project analyzes customer lifecycle behavior using the `TheLook eCommerce` 
 *   **SQL Dialect:** Google BigQuery (Standard SQL)
 *   **Business Intelligence:** Tableau (Interactive Executive Dashboard, Data Densification, Dual-Axis Time Series)
 *   **Core Concepts:** Multi-level Common Table Expressions (CTEs), Window Functions (`NTILE`, `AVG OVER`, `MIN OVER`), Dynamic Date Spines, Relational Joins, and Cohort Date Truncation.
-*   **Data Integrity:** Handling null states via `COALESCE`, filtering out `Cancelled` and `Returned` order statuses to reflect recognized revenue, and preventing mathematical gaps in time-series data.
 
 ### Project Architecture & Data Flow
 
