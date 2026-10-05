@@ -1,12 +1,14 @@
 # E-Commerce Customer Retention & Lifecycle Analytics
 
+> **[📊 View Live Interactive Executive Dashboard on Tableau Public](https://public.tableau.com/app/profile/ivan.nathanael/viz/Ecommerce_Lifecycle_and_Revenue_Retention_Executive_Summary/Dashboard1?publish=yes)**
+
 ## Executive Summary
 This project analyzes customer lifecycle behavior using the `TheLook eCommerce` dataset natively hosted in Google BigQuery. The objective is to move beyond basic aggregate metrics to actionable business intelligence: identifying high-value customer segments, calculating month-over-month cohort retention, and smoothing daily revenue volatility using rolling averages.
 
 **Key Technical Skills Demonstrated:**
 *   **SQL Dialect:** Google BigQuery (Standard SQL)
+*   **Business Intelligence:** Tableau (Interactive Executive Dashboard, Data Densification, Dual-Axis Time Series)
 *   **Core Concepts:** Multi-level Common Table Expressions (CTEs), Window Functions (`NTILE`, `AVG OVER`, `MIN OVER`), Dynamic Date Spines, Relational Joins, and Cohort Date Truncation.
-*   **Data Integrity:** Handling null states via `COALESCE`, filtering out `Cancelled` and `Returned` order statuses to reflect recognized revenue, and preventing mathematical gaps in time-series data.
 
 ### Project Architecture & Data Flow
 
@@ -22,39 +24,35 @@ graph TD
         SQL3[03_rolling_revenue.sql<br/>Dynamic Calendar Spine]
     end
 
-    subgraph Local Python Environment
-        CSV1[(01_rfm_segmentation.csv)]
-        CSV2[(02_cohort_retention.csv)]
-        CSV3[(03_rolling_revenue.csv)]
-        PY[Python Analytics<br/>Pandas, Seaborn, Plotly]
+    subgraph Business Intelligence Layer
+        EXTRACT[(Tableau Extract Data<br/>.hyper format)]
+        TAB[Tableau Public<br/>Interactive Dashboard]
     end
 
     subgraph Deliverables
-        VIZ1[RFM Treemap & Bar Chart]
-        VIZ2[Retention Heatmap]
-        VIZ3[Time-Series Overlay]
-        INSIGHTS[Actionable Business Insights]
+        VIZ1[RFM Segment Treemap]
+        VIZ2[Densified Retention Heatmap]
+        VIZ3[Dual-Axis Time Series]
+        PORTFOLIO[Live Executive Dashboard]
     end
 
     BQ -->|Query Execution| SQL1
     BQ -->|Query Execution| SQL2
     BQ -->|Query Execution| SQL3
 
-    SQL1 -->|Export| CSV1
-    SQL2 -->|Export| CSV2
-    SQL3 -->|Export| CSV3
+    SQL1 -->|Export Data| EXTRACT
+    SQL2 -->|Export Data| EXTRACT
+    SQL3 -->|Export Data| EXTRACT
 
-    CSV1 -->|Dataframe Load| PY
-    CSV2 -->|Dataframe Load| PY
-    CSV3 -->|Dataframe Load| PY
+    EXTRACT -->|Embed Data| TAB
 
-    PY -->|Render| VIZ1
-    PY -->|Render| VIZ2
-    PY -->|Render| VIZ3
+    TAB -->|Render| VIZ1
+    TAB -->|Render| VIZ2
+    TAB -->|Render| VIZ3
 
-    VIZ1 --> INSIGHTS
-    VIZ2 --> INSIGHTS
-    VIZ3 --> INSIGHTS
+    VIZ1 --> PORTFOLIO
+    VIZ2 --> PORTFOLIO
+    VIZ3 --> PORTFOLIO
 ```
 ---
 
