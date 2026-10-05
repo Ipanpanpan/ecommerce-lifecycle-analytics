@@ -1,10 +1,13 @@
 # E-Commerce Customer Retention & Lifecycle Analytics
 
+> **[📊 View Live Interactive Executive Dashboard on Tableau Public](https://public.tableau.com/app/profile/ivan.nathanael/viz/Ecommerce_Lifecycle_and_Revenue_Retention_Executive_Summary/Dashboard1?publish=yes)**
+
 ## Executive Summary
 This project analyzes customer lifecycle behavior using the `TheLook eCommerce` dataset natively hosted in Google BigQuery. The objective is to move beyond basic aggregate metrics to actionable business intelligence: identifying high-value customer segments, calculating month-over-month cohort retention, and smoothing daily revenue volatility using rolling averages.
 
 **Key Technical Skills Demonstrated:**
 *   **SQL Dialect:** Google BigQuery (Standard SQL)
+*   **Business Intelligence:** Tableau (Interactive Executive Dashboard, Data Densification, Dual-Axis Time Series)
 *   **Core Concepts:** Multi-level Common Table Expressions (CTEs), Window Functions (`NTILE`, `AVG OVER`, `MIN OVER`), Dynamic Date Spines, Relational Joins, and Cohort Date Truncation.
 *   **Data Integrity:** Handling null states via `COALESCE`, filtering out `Cancelled` and `Returned` order statuses to reflect recognized revenue, and preventing mathematical gaps in time-series data.
 
@@ -22,39 +25,35 @@ graph TD
         SQL3[03_rolling_revenue.sql<br/>Dynamic Calendar Spine]
     end
 
-    subgraph Local Python Environment
-        CSV1[(01_rfm_segmentation.csv)]
-        CSV2[(02_cohort_retention.csv)]
-        CSV3[(03_rolling_revenue.csv)]
-        PY[Python Analytics<br/>Pandas, Seaborn, Plotly]
+    subgraph Business Intelligence Layer
+        EXTRACT[(Tableau Extract Data<br/>.hyper format)]
+        TAB[Tableau Public<br/>Interactive Dashboard]
     end
 
     subgraph Deliverables
-        VIZ1[RFM Treemap & Bar Chart]
-        VIZ2[Retention Heatmap]
-        VIZ3[Time-Series Overlay]
-        INSIGHTS[Actionable Business Insights]
+        VIZ1[RFM Segment Treemap]
+        VIZ2[Densified Retention Heatmap]
+        VIZ3[Dual-Axis Time Series]
+        PORTFOLIO[Live Executive Dashboard]
     end
 
     BQ -->|Query Execution| SQL1
     BQ -->|Query Execution| SQL2
     BQ -->|Query Execution| SQL3
 
-    SQL1 -->|Export| CSV1
-    SQL2 -->|Export| CSV2
-    SQL3 -->|Export| CSV3
+    SQL1 -->|Export Data| EXTRACT
+    SQL2 -->|Export Data| EXTRACT
+    SQL3 -->|Export Data| EXTRACT
 
-    CSV1 -->|Dataframe Load| PY
-    CSV2 -->|Dataframe Load| PY
-    CSV3 -->|Dataframe Load| PY
+    EXTRACT -->|Embed Data| TAB
 
-    PY -->|Render| VIZ1
-    PY -->|Render| VIZ2
-    PY -->|Render| VIZ3
+    TAB -->|Render| VIZ1
+    TAB -->|Render| VIZ2
+    TAB -->|Render| VIZ3
 
-    VIZ1 --> INSIGHTS
-    VIZ2 --> INSIGHTS
-    VIZ3 --> INSIGHTS
+    VIZ1 --> PORTFOLIO
+    VIZ2 --> PORTFOLIO
+    VIZ3 --> PORTFOLIO
 ```
 ---
 
@@ -64,16 +63,6 @@ graph TD
 **The Business Problem:** Treating all customers equally leads to inefficient marketing spend. The business needs to identify its most valuable segments—not just by frequency, but by absolute monetary contribution—and isolate high-value users who are at risk of churning.
 
 **The Technical Solution:** A query that calculates Recency (days since last order), Frequency (total orders), and Monetary value (total spend). It scores them into quintiles using the `NTILE(5)` window function and uses a 3-dimensional `CASE` statement to assign categorical business labels based on multidimensional behavior (e.g., isolating high-spend, low-frequency users from high-frequency, low-spend users).
-
-### Visualization: Customer Segment Distribution
-
-<p align="center">
-  <img src="BarCharts_CustCountnTotalRevperSegment.png" alt="Customer Segment Distribution Bar Chart" width="800" />
-</p>
-
-<p align="center">
-  <img src="TreeMap%20for%20RFM%20Segments.png" alt="RFM Segment Treemap" width="700" />
-</p>
 
 **Business Insights Derived:**
 *   **The "Big Spender" Dependency:** While "Average Regulars" make up the largest portion of the user base (over 8,000 users), the "Big Spenders" segment (~5,800 users) generates double the revenue ($1.0M vs $0.5M). The business relies heavily on high-cart-value transactions rather than frequent, smaller purchases.
@@ -127,10 +116,6 @@ ORDER BY monetary DESC;
 **The Business Problem:** How sticky is the product? Do users who buy in Month 1 return to buy in Month 2, Month 3, and beyond? If the business relies on one-off purchases, acquisition costs will eventually outpace lifetime value (LTV).
 
 **The Technical Solution:** A multi-CTE script that establishes a "Cohort Month" for every user based on their first purchase, maps all subsequent active months to an integer index (1, 2, 3...), and calculates the percentage of the original cohort retained in each period. *Note: Month 0 (the month of initial purchase) is excluded from the visualization as it is mathematically 100% and skews the color gradient.*
-
-### Visualization: Retention Matrix Heatmap (2024 - Present)
-![Cohort Retention Rate from 2024 - Present](RetentionMatrix.png)
-
 
 **Business Insights Derived:**
 *   **Severe Churn Reality:** The data reveals an immediate, severe drop-off. Month 1 retention rarely breaks 5%. Over 95% of acquired customers make a single purchase and never return. 
@@ -195,8 +180,6 @@ ORDER BY r.cohort_month, r.month_index;
 
 **The Technical Solution:** The SQL script dynamically bounds the dataset, generates a continuous array of dates (`GENERATE_DATE_ARRAY`), and uses a `LEFT JOIN` to enforce `$0` sales on inactive days. This guarantees the mathematical integrity of the 7-day rolling window by ensuring `AVG() OVER()` does not skip empty dates.
 
-### Visualization: Daily vs. 7-Day Rolling Revenue (2026 YTD)
-![Time Series Overlay Chart](time-series%20overlay%20chart.png)
 
 **Business Insights Derived:**
 *   **Noise Reduction:** The faint blue baseline reveals the daily volatility. The 7-day rolling average successfully smooths this day-of-week seasonality, revealing a steady baseline revenue of roughly $10,000/day throughout the first three quarters of 2026.
